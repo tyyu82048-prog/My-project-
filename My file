@@ -1,1 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device Info</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
 
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px #0002;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #222;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .info {
+      margin-top: 20px;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📱 Device Information</h2>
+
+  <p>
+    This page only collects information that you choose to share.
+    Location requires your explicit browser permission.
+  </p>
+
+  <div class="info" id="deviceInfo"></div>
+
+  <button onclick="shareLocation()">
+    📍 Share My Location
+  </button>
+
+  <div class="info" id="locationInfo"></div>
+</div>
+
+<script>
+  // Basic device/browser information
+  const info = {
+    "Browser": navigator.userAgent,
+    "Language": navigator.language,
+    "Platform": navigator.platform,
+    "Screen": screen.width + " × " + screen.height,
+    "Online": navigator.onLine ? "Yes" : "No",
+    "Time": new Date().toLocaleString()
+  };
+
+  let html = "";
+
+  for (const key in info) {
+    html += `<b>${key}:</b> ${escapeHTML(info[key])}<br>`;
+  }
+
+  document.getElementById("deviceInfo").innerHTML = html;
+
+
+  // Location — only after user clicks the button
+  function shareLocation() {
+
+    if (!navigator.geolocation) {
+      document.getElementById("locationInfo").innerHTML =
+        "❌ Geolocation is not supported by this browser.";
+      return;
+    }
+
+    document.getElementById("locationInfo").innerHTML =
+      "⏳ Waiting for your permission...";
+
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        document.getElementById("locationInfo").innerHTML =
+          `<b>Latitude:</b> ${lat}<br>
+           <b>Longitude:</b> ${lon}<br>
+           <b>Accuracy:</b> approximately ${Math.round(position.coords.accuracy)} meters`;
+      },
+
+      function(error) {
+        document.getElementById("locationInfo").innerHTML =
+          "❌ Location was not shared. Permission was denied or unavailable.";
+      }
+    );
+  }
+
+
+  // Prevent HTML injection when displaying browser information
+  function escapeHTML(text) {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+</script>
+
+</body>
+</html>
